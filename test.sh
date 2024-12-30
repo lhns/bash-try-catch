@@ -37,3 +37,4 @@ F() { test=0; try test=1; echo testout; echo testerr >&2; throw 2; catchvars ech
 F() { test=0; try test=1; echo testout; echo testerr >&2; true; catcherr echo "error $ERR"; fi; echo "test $test"; }; assert 0 $'testout\ntest 1' $'testerr' F
 F() { test=0; try test=1; echo testout; echo testerr >&2; throw 2; catcherr echo "error $ERR"; fi; echo "test $test"; }; assert 0 $'testout\nerror 2\ntest 1' $'' F
 F() { test=0; try test=1; echo testout; echo testerr >&2; throw 2; catcherr echo "error $ERR"; fi; echo "test $test"; echo "stderr $(trystderr 2>&1)"; }; assert 0 $'testout\nerror 2\ntest 1\nstderr testerr' $'' F
+echo "All tests succeeded"
