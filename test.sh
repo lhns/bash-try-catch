@@ -244,7 +244,8 @@ F() { v="$all"; try :; catch :; fi; same "$v" "$all" unchanged; try f() { printf
 F() { try LC_ALL=C; v="$all"; catch :; fi; same "$v" "$all" "other locale"; }; assert 0 $'other locale ok' $'' F
 F() { try printf '\0%s\0' "$all" >&2; throw; catcherr same "$(trystderr 2>&1 | od -An -tx1)" "$(printf '\0%s\0' "$all" | od -An -tx1)" stderr; fi; }; assert 0 $'stderr ok' $'' F
 F() { G() { try printf '\0%s\0' "$all" >&2; catcherr :; fi; }; same "$(G 2>&1 | od -An -tx1)" "$(printf '\0%s\0' "$all" | od -An -tx1)" replay; }; assert 0 $'replay ok' $'' F
-F() { d="$(mktemp -d)"; n=$'a\nb\r\x01\xff c'; mkdir "$d/$n"; try cd "$d/$n"; catch :; fi; same "$PWD" "$d/$n" cwd; cd /; rm -rf "$d"; }; assert 0 $'cwd ok' $'' F
+# (macOS rejects file names that are not valid UTF-8)
+F() { d="$(mktemp -d)"; n=$'a\nb\r\x01\xff c'; mkdir "$d/$n" 2>/dev/null || { n=$'a\nb\r\x01 c'; mkdir "$d/$n"; }; try cd "$d/$n"; catch :; fi; same "$PWD" "$d/$n" cwd; cd /; rm -rf "$d"; }; assert 0 $'cwd ok' $'' F
 
 # only changed variables are passed back: no change may be missed, whatever the bytes, the locale or nocasematch
 F() {
