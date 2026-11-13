@@ -1,0 +1,7 @@
+shell=bash
+# Idioms used throughout try_catch.sh:
+# SC1007 `local a= b=`: empty assignments
+# SC2034 variables that are only read in eval, trap and alias strings
+# SC2139 aliases built from variables when the library is sourced
+# SC2142 aliases that use the caller's "$@"
+disable=SC1007,SC2034,SC2139,SC2142
