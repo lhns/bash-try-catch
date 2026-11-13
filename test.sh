@@ -207,7 +207,7 @@ F() { G() { try false; echo reached; catch echo "caught $ERR"; fi; }; if x=$(G);
 F() { G() { local v=1; try v=2; H; echo reached; catch echo "caught $ERR v=$v"; fi; }; H() { false; echo reached; }; x=$(G) || :; echo "$x"; }; assert 0 $'caught 1 v=2' $'' F
 F() { G() { try echo e >&2; try false; catch echo inner; fi; exit 4; catcherr echo "ERR=$ERR $(trystderr 2>&1)"; fi; }; if x=$(G); then echo "$x"; fi; }; assert 0 $'inner\nERR=4 e' $'' F
 F() { G() { try return 3; catch :; fi; echo reached; }; if x=$(G); then echo "$x"; else echo "rc=$?"; fi; }; assert 0 $'rc=3' $'' F
-F() { G() { try trap 'echo usr1' USR1; kill -USR1 "$BASHPID"; trap -p; catch :; fi; }; if x=$(G); then echo "$x"; fi; }; assert 0 $'usr1\ntrap -- \'echo usr1\' SIGUSR1' $'' F
+F() { G() { try trap 'echo usr1' USR1; kill -USR1 "$BASHPID"; trap -p USR1; catch :; fi; }; if x=$(G); then echo "$x"; fi; }; assert 0 $'usr1\ntrap -- \'echo usr1\' SIGUSR1' $'' F
 
 # bash versions: "local -" turns expand_aliases off in 4.4, "local -p NAME" succeeds for all variables before 5.1
 F() { try :; catch :; fi; shopt -q expand_aliases && echo on; eval 'try echo a; false; catch echo b; fi'; }; assert 0 $'on\na\nb' $'' F
