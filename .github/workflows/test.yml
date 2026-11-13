@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -24,7 +24,17 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install bash
       - name: Test
+        # Git Bash on Windows
+        shell: bash
         run: bash --version && bash test.sh
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: ShellCheck
+        # test.sh can't be checked: ShellCheck doesn't expand the try/catch aliases
+        run: shellcheck --version && shellcheck --severity=warning try_catch.sh
 
   bash-versions:
     strategy:

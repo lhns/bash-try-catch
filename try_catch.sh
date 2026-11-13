@@ -60,6 +60,7 @@ TRY_INTERNAL_COUNT=0
 # $1: output of compgen -v, sets TRY_INTERNAL_NAMES
 try_internal_names() {
   local IFS=$'\n'
+  # shellcheck disable=SC2206 # variable names, no glob characters
   TRY_INTERNAL_NAMES=($1)
 }
 # (bash can be built without compgen)
@@ -173,6 +174,7 @@ try_internal_run_block() {
   # try_internal_start for the exception) and $? is its exit code in the first command of the loop.
   # The results are written to the pipe of the command substitution (by try_internal_relay), the stdout of the
   # subshell is the one of the caller.
+  # shellcheck disable=SC2066 # one iteration is intended
   for TRY_INTERNAL_DATA in "$(exec {TRY_INTERNAL_OUT}>&1 >&"$TRY_INTERNAL_FD" {TRY_INTERNAL_FD}>&-; try_internal_start "$@")"; do
     ERR=$?
   done
@@ -204,6 +206,7 @@ try_internal_run_block() {
     TRY_INTERNAL_FUNC_NAMES[$TRY_INTERNAL_NAME]=1
     TRY_INTERNAL_LINE="${TRY_INTERNAL_LINE#declare -f}"
     TRY_INTERNAL_LINE="${TRY_INTERNAL_LINE%% *}"
+    # shellcheck disable=SC2163 # exports the function named by the variable
     [[ $TRY_INTERNAL_LINE != *x* ]] || builtin export -f -- "$TRY_INTERNAL_NAME"
     [[ $TRY_INTERNAL_LINE != *t* ]] || builtin declare -ft -- "$TRY_INTERNAL_NAME"
   done
@@ -248,6 +251,7 @@ try_internal_lines() {
   local IFS=$'\n' TRY_INTERNAL_GLOB=
   [[ -o noglob ]] || TRY_INTERNAL_GLOB=1
   builtin set -f
+  # shellcheck disable=SC2206 # split on newlines with globbing off
   TRY_INTERNAL_LINES=($1)
   [[ -z $TRY_INTERNAL_GLOB ]] || builtin set +f
 }
@@ -446,7 +450,7 @@ try_internal_relay() {
   { builtin set +xu; } 2>/dev/null
   builtin shopt -u nocasematch
   local TRY_INTERNAL_KIND TRY_INTERNAL_LEN TRY_INTERNAL_DATA TRY_INTERNAL_CODE= TRY_INTERNAL_CHILD_CODE= \
-    TRY_INTERNAL_JUMP_CODE= TRY_INTERNAL_NAMES_BEFORE= TRY_INTERNAL_NAMES_OUT= TRY_INTERNAL_TEXT_OUT== TRY_INTERNAL_STATE_TEXT
+    TRY_INTERNAL_JUMP_CODE= TRY_INTERNAL_NAMES_BEFORE= TRY_INTERNAL_NAMES_OUT= TRY_INTERNAL_TEXT_OUT='=' TRY_INTERNAL_STATE_TEXT
   local -a TRY_INTERNAL_LINES TRY_INTERNAL_PARTS TRY_INTERNAL_STATE
   TRY_INTERNAL_STATE_TEXT="$(try_internal_state)"
   local IFS=$' \t\n' LC_ALL=C
@@ -616,6 +620,7 @@ try_internal_child() {
     local TRY_INTERNAL_ACTION TRY_INTERNAL_SIG TRY_INTERNAL_SIGS=() TRY_INTERNAL_I
     # subshells of the try block have their own traps
     if [[ $BASHPID != "$TRY_INTERNAL_PID" || ${1-} == -l ]]; then
+      # shellcheck disable=SC2064 # passes the caller's arguments on
       builtin trap "$@"
       builtin return
     fi
@@ -705,6 +710,7 @@ try_internal_child() {
       builtin wait "$@"
       builtin return
     fi
+    # shellcheck disable=SC2207 # process ids
     TRY_INTERNAL_JOBS=($(builtin jobs -p))
     if [[ -n $TRY_INTERNAL_ANY ]]; then
       # the next job that ends
