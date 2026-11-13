@@ -13,8 +13,26 @@ on:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install bash
+        if: runner.os == 'macOS'
+        run: brew install bash
+      - name: Test
+        run: bash --version && bash test.sh
+
+  bash-versions:
+    strategy:
+      fail-fast: false
+      matrix:
+        bash: [ '4.4', '5.0', '5.1', '5.2', '5.3' ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Test
-        run: ./test.sh
+        run: docker run --rm -v "$PWD:/src" -w /src "bash:${{ matrix.bash }}" bash -c 'bash --version && bash test.sh'
